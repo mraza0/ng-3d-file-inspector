@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:BambuStudio="http://schemas.bambulab.com/package/2021" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06" requiredextensions="p">
+ <metadata name="Application">BambuStudio-02.01.01.52</metadata>
+ <metadata name="BambuStudio:3mfVersion">1</metadata>
+ <metadata name="CopyRight">&quot;[]&quot;</metadata>
+ <metadata name="Copyright">&amp;quot;[]&amp;quot;</metadata>
+ <metadata name="CreationDate">2025-09-09</metadata>
+ <metadata name="Description">&amp;lt;p&amp;gt;Rotatable herb and spice rack.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;amp;nbsp;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;The rack measures 175mm in diameter and is designed with the A1 mini in mind, reaching a height of 219mm when fully assembled. It can hold up to 12 jars, each with a maximum diameter of 44mm.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;amp;nbsp;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;amp;nbsp;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Prints on 4 plates with 7 parts in total. It&amp;amp;#39;s super easy to assemble, just slots together. I haven&amp;amp;#39;t used any glue, and it held together just fine, but a few drops of glue wouldn&amp;amp;#39;t hurt. Just make sure the uprights are oriented correctly before applying glue, as the holes slant down slightly and should face inwards.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;amp;nbsp;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;You will need one bearing with an inner diameter of 8mm and an outer diameter of 22mm. This one - (&amp;lt;a target=&amp;amp;#34;_blank&amp;amp;#34; rel=&amp;amp;#34;noopener noreferrer ugc&amp;amp;#34; href=&amp;amp;#34;https://bearing-king.co.uk/products/608-2z-skf-shielded-deep-groove-ball-bearing-8mm-inside-x-22mm-outside-x-7mm-wide&amp;amp;#34;&amp;gt;608-2Z SKF Shielded Deep Groove Ball Bearing 8mm inside x 22mm outside&amp;lt;/a&amp;gt;)&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;amp;nbsp;&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;Working on a version without any bearing that is expected to be released within the next week or two.&amp;lt;/p&amp;gt;&amp;lt;p&amp;gt;&amp;amp;nbsp;&amp;lt;/p&amp;gt;&amp;lt;boostme&amp;gt;&amp;lt;boosttitle&amp;gt;Boost Me&amp;lt;/boosttitle&amp;gt;&amp;lt;boostcontent&amp;gt;If you appreciate the model, a boost would greatly help support my work.&amp;lt;/boostcontent&amp;gt;&amp;lt;/boostme&amp;gt;</metadata>
+ <metadata name="DesignModelId">US8ca7ea8039b346</metadata>
+ <metadata name="DesignProfileId">343632559</metadata>
+ <metadata name="DesignRegion">US</metadata>
+ <metadata name="Designer">ApophisPrints</metadata>
+ <metadata name="DesignerCover">2025-07-02_6550fa978ba8d.gif</metadata>
+ <metadata name="DesignerUserId">76222558</metadata>
+ <metadata name="License">Standard Digital File License</metadata>
+ <metadata name="ModificationDate">2025-09-09</metadata>
+ <metadata name="Origin">original</metadata>
+ <metadata name="ProfileCover">2025-07-04_b44edbe3601dc.jpg</metadata>
+ <metadata name="ProfileTitle">For A1 Mini</metadata>
+ <metadata name="ProfileUserId">76222558</metadata>
+ <metadata name="ProfileUserName">ApophisPrints</metadata>
+ <metadata name="Thumbnail_Middle">/Metadata/plate_1.png</metadata>
+ <metadata name="Thumbnail_Small">/Metadata/plate_1_small.png</metadata>
+ <metadata name="Title">Rotating Herb And Spice Rack</metadata>
+ <resources>
+ </resources>
+ <build/>
+</model>
