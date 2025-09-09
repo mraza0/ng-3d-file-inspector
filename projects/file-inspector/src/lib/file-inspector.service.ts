@@ -92,156 +92,71 @@ export class FileInspectorService {
     try {
       const zip = await JSZip.loadAsync(file);
       
-      // Check for slicing-specific files and metadata
-      const fileNames = Object.keys(zip.files);
+      // Check for gcode_file metadata in model_settings.config - most reliable indicator
+      const modelSettingsFile = zip.file('Metadata/model_settings.config');
+      if (modelSettingsFile) {
+        try {
+          const modelSettingsContent = await modelSettingsFile.async('string');
+          // If gcode_file metadata exists, it's sliced
+          if (modelSettingsContent.includes('gcode_file')) {
+            return true;
+          }
+        } catch (e) {
+          // If we can't read the file, continue with other checks
+        }
+      }
       
-      // Check for Bambu Studio/OrcaSlicer specific files
-      if (fileNames.some(name => name.includes('Metadata/') || name.includes('auxiliary'))) {
+      // Fallback: check for actual G-code files
+      const fileNames = Object.keys(zip.files);
+      if (fileNames.some(name => name.toLowerCase().endsWith('.gcode') || name.toLowerCase().endsWith('.g'))) {
         return true;
       }
       
-      // Check content of 3D model file for slicing metadata
-      const modelFile = zip.file('3D/3dmodel.model');
-      if (modelFile) {
-        const modelContent = await modelFile.async('string');
-        console.log('3MF Model Content:', modelContent.substring(0, 1000));
-        
-        const slicingIndicators = [
-          // Slicer names
-          'PrusaSlicer', 'SuperSlicer', 'OrcaSlicer', 'Cura', 'BambuStudio', 
-          'Slic3r', 'ideaMaker', 'Simplify3D',
-          
-          // Slicing-specific metadata
-          'print_settings', 'printer_settings', 'material_settings',
-          'slice_parameter', 'slicing_info', 'slicer_version',
-          
-          // Print job information
-          'print_time', 'material_usage', 'layer_count',
-          
-          // Specific 3MF slicing tags and namespaces
-          'slice:', 'config:', 'slic3r:', 'prusaslicer:', 'bambustudio:',
-          'xmlns:config', 'xmlns:slic3r', 'xmlns:slice'
-        ];
-        
-        if (slicingIndicators.some(indicator => 
-          modelContent.toLowerCase().includes(indicator.toLowerCase())
-        )) {
-          return true;
-        }
-      }
-      
-      // Check auxiliary files for slicer metadata
-      for (const fileName of fileNames) {
-        if (fileName.startsWith('Metadata/') || fileName.includes('auxiliary') || fileName.includes('config')) {
-          const file = zip.file(fileName);
-          if (file) {
-            const content = await file.async('string');
-            if (content.includes('slic') || content.includes('print') || content.includes('layer')) {
-              return true;
-            }
-          }
-        }
-      }
-      
       return false;
     } catch (error) {
-      console.warn('Error detecting 3MF slicing status:', error);
       return false;
     }
   }
 
-  private async extractPrinterInfo(file: File): Promise<PrinterInfo | undefined> {
+  private async extractPrinterInfo(file: File): Promise<PrinterInfo[] | undefined> {
     try {
       const zip = await JSZip.loadAsync(file);
-      let allContent = '';
       
-      // Extract and combine content from all relevant files
-      const relevantFiles = ['3D/3dmodel.model', '[Content_Types].xml'];
-      const metadataFiles = Object.keys(zip.files).filter(name => 
-        name.startsWith('Metadata/') || name.includes('auxiliary') || name.includes('config')
-      );
-      
-      for (const fileName of [...relevantFiles, ...metadataFiles]) {
-        const file = zip.file(fileName);
-        if (file) {
-          try {
-            const content = await file.async('string');
-            allContent += content + ' ';
-          } catch (e) {
-            // Skip files that can't be read as text
+      // Check project_settings.config for print_compatible_printers - most reliable
+      const projectSettingsFile = zip.file('Metadata/project_settings.config');
+      if (projectSettingsFile) {
+        try {
+          const projectSettingsContent = await projectSettingsFile.async('string');
+          // Match the entire array of compatible printers
+          const printerArrayMatch = projectSettingsContent.match(/"print_compatible_printers":\s*\[(.*?)\]/s);
+          if (printerArrayMatch) {
+            // Extract all printer names from the array
+            const printerNames = printerArrayMatch[1].match(/"([^"]+)"/g);
+            if (printerNames) {
+              const compatiblePrinters: PrinterInfo[] = [];
+              for (const printerName of printerNames) {
+                const cleanName = printerName.replace(/"/g, '');
+                const printerInfo = this.parsePrinterName(cleanName);
+                if (printerInfo) {
+                  compatiblePrinters.push(printerInfo);
+                }
+              }
+              return compatiblePrinters.length > 0 ? compatiblePrinters : undefined;
+            }
           }
-        }
-      }
-      
-      console.log('3MF Combined Content for Printer Info:', allContent.substring(0, 1000));
-
-      const printerPatterns = [
-        // XML-style printer information (common in 3MF)
-        { pattern: /<metadata.*name=["']printer_model["'].*>([^<]+)</i, brand: 'Generic' },
-        { pattern: /<metadata.*name=["']printer_variant["'].*>([^<]+)</i, brand: 'Generic' },
-        { pattern: /printer_model="([^"]+)"/i, brand: 'Generic' },
-        { pattern: /printer_variant="([^"]+)"/i, brand: 'Generic' },
-        
-        // Prusa patterns
-        { pattern: /Prusa.*i3.*MK([0-9S]+)/i, brand: 'Prusa Research' },
-        { pattern: /Original Prusa i3 MK([0-9S]+)/i, brand: 'Prusa Research' },
-        { pattern: /Prusa.*MINI/i, brand: 'Prusa Research', name: 'MINI+' },
-        { pattern: /Prusa.*XL/i, brand: 'Prusa Research', name: 'XL' },
-        { pattern: /MK3S/i, brand: 'Prusa Research', name: 'i3 MK3S+' },
-        { pattern: /MK4/i, brand: 'Prusa Research', name: 'MK4' },
-        
-        // Bambu Lab patterns
-        { pattern: /Bambu.*X1.*Carbon/i, brand: 'Bambu Lab', name: 'X1 Carbon' },
-        { pattern: /Bambu.*A1.*mini/i, brand: 'Bambu Lab', name: 'A1 mini' },
-        { pattern: /X1C/i, brand: 'Bambu Lab', name: 'X1 Carbon' },
-        { pattern: /A1M/i, brand: 'Bambu Lab', name: 'A1 mini' },
-        
-        // Creality patterns  
-        { pattern: /Ender.*(\d+)/i, brand: 'Creality' },
-        { pattern: /CR-(\d+)/i, brand: 'Creality' },
-        
-        // Ultimaker patterns
-        { pattern: /Ultimaker.*([A-Z0-9\s]+)/i, brand: 'Ultimaker' },
-        
-        // Generic patterns
-        { pattern: /printer.*name.*[:=]["']([^"']+)["']/i, brand: 'Generic' },
-        { pattern: /machine.*type.*[:=]["']([^"']+)["']/i, brand: 'Generic' }
-      ];
-
-      for (const { pattern, brand, name } of printerPatterns) {
-        const match = allContent.match(pattern);
-        if (match) {
-          const printerName = name || match[1];
-          return {
-            name: printerName.trim(),
-            brand,
-            model: match[1] ? match[1].trim() : printerName.trim()
-          };
+        } catch (e) {
+          // If we can't read the file, continue
         }
       }
 
-      // Fallback: look for any printer-related metadata
-      const fallbackPatterns = [
-        /printer.*[:=]\s*([^\n\r;,]+)/i,
-        /machine.*[:=]\s*([^\n\r;,]+)/i
-      ];
-
-      for (const pattern of fallbackPatterns) {
-        const match = allContent.match(pattern);
-        if (match && match[1].trim().length > 0) {
-          const printerName = match[1].trim();
-          return this.parsePrinterName(printerName);
-        }
-      }
 
       return undefined;
     } catch (error) {
-      console.warn('Error extracting printer info from 3MF:', error);
       return undefined;
     }
   }
 
-  private async extractGcodePrinterInfo(file: File): Promise<PrinterInfo | undefined> {
+  private async extractGcodePrinterInfo(file: File): Promise<PrinterInfo[] | undefined> {
     try {
       const text = await file.text();
       const lines = text.split('\n').slice(0, 50);
@@ -253,7 +168,8 @@ export class FileInspectorService {
           const printerMatch = trimmedLine.match(/printer[:\s]+([^\n\r;]+)/i);
           if (printerMatch) {
             const printerName = printerMatch[1].trim();
-            return this.parsePrinterName(printerName);
+            const printerInfo = this.parsePrinterName(printerName);
+            return printerInfo ? [printerInfo] : undefined;
           }
         }
 
@@ -262,10 +178,10 @@ export class FileInspectorService {
           if (generatedMatch) {
             const slicerInfo = generatedMatch[1].trim();
             if (slicerInfo.includes('Prusa')) {
-              return { name: 'Prusa Printer', brand: 'Prusa Research' };
+              return [{ name: 'Prusa Printer', brand: 'Prusa Research' }];
             }
             if (slicerInfo.includes('Cura')) {
-              return { name: 'Generic Printer', brand: 'Generic' };
+              return [{ name: 'Generic Printer', brand: 'Generic' }];
             }
           }
         }
@@ -289,8 +205,23 @@ export class FileInspectorService {
     }
     
     if (lowerName.includes('bambu')) {
-      if (lowerName.includes('x1')) return { name: 'X1 Carbon', brand: 'Bambu Lab' };
-      if (lowerName.includes('a1')) return { name: 'A1 mini', brand: 'Bambu Lab' };
+      // X1 Series
+      if (lowerName.includes('x1') && lowerName.includes('carbon')) return { name: 'X1 Carbon', brand: 'Bambu Lab' };
+      if (lowerName.includes('x1e')) return { name: 'X1E', brand: 'Bambu Lab' };
+      if (lowerName.includes('x1c')) return { name: 'X1 Carbon', brand: 'Bambu Lab' };
+      if (lowerName.includes('x1')) return { name: 'X1', brand: 'Bambu Lab' };
+      
+      // A1 Series  
+      if (lowerName.includes('a1') && lowerName.includes('mini')) return { name: 'A1 mini', brand: 'Bambu Lab' };
+      if (lowerName.includes('a1') && lowerName.includes('combo')) return { name: 'A1 Combo', brand: 'Bambu Lab' };
+      if (lowerName.includes('a1m')) return { name: 'A1 mini', brand: 'Bambu Lab' };
+      if (lowerName.includes('a1')) return { name: 'A1', brand: 'Bambu Lab' };
+      
+      // P1 Series
+      if (lowerName.includes('p1p')) return { name: 'P1P', brand: 'Bambu Lab' };
+      if (lowerName.includes('p1s')) return { name: 'P1S', brand: 'Bambu Lab' };
+      if (lowerName.includes('p1')) return { name: 'P1P', brand: 'Bambu Lab' };
+      
       return { name: name, brand: 'Bambu Lab' };
     }
     
@@ -324,8 +255,6 @@ export class FileInspectorService {
         }
       }
       
-      console.log('3MF Content for Slicer Info:', allContent.substring(0, 1000));
-      console.log('All file names in 3MF:', Object.keys(zip.files));
       
       const slicerPatterns = [
         // Direct slicer name patterns with versions
@@ -381,7 +310,6 @@ export class FileInspectorService {
 
       return undefined;
     } catch (error) {
-      console.warn('Error extracting slicer info from 3MF:', error);
       return undefined;
     }
   }
@@ -420,7 +348,7 @@ export class FileInspectorService {
     }
   }
 
-  private async extract3mfPrintSettings(file: File): Promise<any> {
+  private async extract3mfPrintSettings(_file: File): Promise<any> {
     return {};
   }
 

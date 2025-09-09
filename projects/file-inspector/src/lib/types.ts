@@ -8,7 +8,7 @@ export enum FileType {
 export interface FileAnalysisResult {
   fileType: FileType;
   isSliced: boolean;
-  printerInfo?: PrinterInfo;
+  printerInfo?: PrinterInfo[];
 }
 
 export interface PrinterInfo {

@@ -38,13 +38,21 @@
       </div>
     </div>
 
-    <div *ngIf="analysis.printerInfo" class="result-card">
-      <h3>Printer Information</h3>
-      <div class="result-item">
-        <strong>Brand:</strong> {{ analysis.printerInfo.brand }}
-      </div>
-      <div class="result-item">
-        <strong>Model:</strong> {{ analysis.printerInfo.name }}
+    <div *ngIf="analysis.printerInfo && analysis.printerInfo.length > 0" class="result-card">
+      <h3>Compatible Printers</h3>
+      <div *ngFor="let printer of analysis.printerInfo; let i = index" class="printer-item">
+        <div class="printer-header">
+          <strong>Printer {{ i + 1 }}:</strong>
+        </div>
+        <div class="result-item">
+          <strong>Brand:</strong> {{ printer.brand }}
+        </div>
+        <div class="result-item">
+          <strong>Model:</strong> {{ printer.name }}
+        </div>
+        <div *ngIf="printer.model && printer.model !== printer.name" class="result-item">
+          <strong>Full Model:</strong> {{ printer.model }}
+        </div>
       </div>
     </div>
 

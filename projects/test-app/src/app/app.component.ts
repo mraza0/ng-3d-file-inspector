@@ -30,7 +30,6 @@ export class AppComponent {
       this.fileInspector.analyzeFile(file).subscribe({
         next: (result: any) => {
           this.analysis = result;
-          console.log('Basic Analysis:', result);
           this.getDetailedAnalysis(file);
         },
         error: (error: any) => {
@@ -45,7 +44,6 @@ export class AppComponent {
     this.fileInspector.analyzeFileDetailed(file).subscribe({
       next: (result:any) => {
         this.detailedAnalysis = result;
-        console.log('Detailed Analysis:', result);
         this.isLoading = false;
       },
       error: (error:any) => {

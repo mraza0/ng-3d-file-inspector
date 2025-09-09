@@ -91,3 +91,29 @@ h2 {
   color: #333;
   margin-right: 10px;
 }
+
+.printer-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.printer-item:last-child {
+  margin-bottom: 0;
+}
+
+.printer-header {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 12px;
+  margin: -15px -15px 10px -15px;
+  border-radius: 6px 6px 0 0;
+  font-weight: bold;
+}
+
+.printer-item .result-item {
+  margin-left: 0;
+  border-bottom: 1px solid #e9ecef;
+}
