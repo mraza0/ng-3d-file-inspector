@@ -1,0 +1,79 @@
+<div class="container">
+  <h1>{{ title }}</h1>
+  
+  <div class="upload-section">
+    <label for="fileInput" class="file-label">
+      Choose 3D File (STL, 3MF, GCODE)
+    </label>
+    <input 
+      id="fileInput"
+      type="file" 
+      (change)="onFileSelected($event)" 
+      accept=".stl,.3mf,.gcode,.g"
+      class="file-input"
+    >
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Analyzing file...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>Error: {{ error }}</p>
+  </div>
+
+  <div *ngIf="analysis && !isLoading" class="results">
+    <h2>File Analysis Results</h2>
+    
+    <div class="result-card">
+      <h3>Basic Information</h3>
+      <div class="result-item">
+        <strong>File Type:</strong> {{ analysis.fileType | uppercase }}
+      </div>
+      <div class="result-item">
+        <strong>Is Sliced:</strong> {{ analysis.isSliced ? 'Yes' : 'No' }}
+      </div>
+      <div *ngIf="detailedAnalysis" class="result-item">
+        <strong>File Size:</strong> {{ (detailedAnalysis.fileSize / 1024 / 1024).toFixed(2) }} MB
+      </div>
+    </div>
+
+    <div *ngIf="analysis.printerInfo" class="result-card">
+      <h3>Printer Information</h3>
+      <div class="result-item">
+        <strong>Brand:</strong> {{ analysis.printerInfo.brand }}
+      </div>
+      <div class="result-item">
+        <strong>Model:</strong> {{ analysis.printerInfo.name }}
+      </div>
+    </div>
+
+    <div *ngIf="detailedAnalysis && detailedAnalysis.slicerInfo" class="result-card">
+      <h3>Slicer Information</h3>
+      <div class="result-item">
+        <strong>Slicer:</strong> {{ detailedAnalysis.slicerInfo.name }}
+      </div>
+      <div *ngIf="detailedAnalysis.slicerInfo.version" class="result-item">
+        <strong>Version:</strong> {{ detailedAnalysis.slicerInfo.version }}
+      </div>
+    </div>
+
+    <div *ngIf="detailedAnalysis && detailedAnalysis.printSettings && hasKeys(detailedAnalysis.printSettings)" class="result-card">
+      <h3>Print Settings</h3>
+      <div *ngIf="detailedAnalysis.printSettings.layerHeight" class="result-item">
+        <strong>Layer Height:</strong> {{ detailedAnalysis.printSettings.layerHeight }}mm
+      </div>
+      <div *ngIf="detailedAnalysis.printSettings.infill" class="result-item">
+        <strong>Infill:</strong> {{ detailedAnalysis.printSettings.infill }}%
+      </div>
+      <div *ngIf="detailedAnalysis.printSettings.temperature" class="result-item">
+        <strong>Print Temperature:</strong> {{ detailedAnalysis.printSettings.temperature }}°C
+      </div>
+      <div *ngIf="detailedAnalysis.printSettings.bedTemperature" class="result-item">
+        <strong>Bed Temperature:</strong> {{ detailedAnalysis.printSettings.bedTemperature }}°C
+      </div>
+    </div>
+  </div>
+</div>
+
+

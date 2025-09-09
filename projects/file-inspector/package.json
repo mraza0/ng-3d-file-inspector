@@ -1,0 +1,25 @@
+{
+  "name": "@polar/ng-3d-file-inspector",
+  "version": "1.0.0",
+  "description": "Angular library for analyzing 3D printing files (STL, 3MF, GCODE) and detecting file properties, slicing status, and printer information",
+  "keywords": ["angular", "3d-printing", "stl", "3mf", "gcode", "slicer", "printer", "file-analysis"],
+  "author": "Polar",
+  "license": "MIT",
+  "homepage": "https://github.com/polar/ng-3d-file-inspector",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polar/ng-3d-file-inspector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/polar/ng-3d-file-inspector/issues"
+  },
+  "peerDependencies": {
+    "@angular/common": "^17.3.0",
+    "@angular/core": "^17.3.0",
+    "rxjs": "~7.8.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
